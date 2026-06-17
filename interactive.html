@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Analytics & Visualization with Python — Interactive Walkthrough</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f4f0;
+    --bg-tertiary: #ececea;
+    --bg-info: #e6f1fb;
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-tertiary: #888780;
+    --text-info: #0c447c;
+    --text-danger: #791f1f;
+    --border-tertiary: rgba(0,0,0,0.12);
+    --border-secondary: rgba(0,0,0,0.22);
+    --border-info: #378add;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1f1e1c;
+      --bg-secondary: #2a2927;
+      --bg-tertiary: #161514;
+      --bg-info: #0c2940;
+      --text-primary: #f2f1ed;
+      --text-secondary: #b4b2a9;
+      --text-tertiary: #888780;
+      --text-info: #85b7eb;
+      --text-danger: #f09595;
+      --border-tertiary: rgba(255,255,255,0.14);
+      --border-secondary: rgba(255,255,255,0.26);
+      --border-info: #378add;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    margin: 0;
+    padding: 2rem 1rem;
+    line-height: 1.7;
+  }
+  .page {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .masthead {
+    margin-bottom: 1.75rem;
+  }
+  .masthead h1 {
+    font-size: 22px;
+    font-weight: 500;
+    margin: 0 0 6px;
+  }
+  .masthead p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+  .card {
+    background: var(--bg-primary);
+    border: 0.5px solid var(--border-tertiary);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+  }
+  .step-nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .step-btn, .chart-toggle {
+    background: var(--bg-primary);
+    border: 0.5px solid var(--border-tertiary);
+    border-radius: var(--radius-md);
+    padding: 7px 16px;
+    font-size: 13px;
+    font-family: var(--font-sans);
+    color: var(--text-primary);
+    cursor: pointer;
+  }
+  .step-btn:hover, .chart-toggle:hover {
+    border-color: var(--border-secondary);
+  }
+  .step-btn.active-step, .chart-toggle.active-chart {
+    background: var(--bg-info);
+    color: var(--text-info);
+    border-color: var(--border-info);
+  }
+  .step-panel { display: none; }
+  .step-panel.visible { display: block; }
+  .panel-caption {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0 0 10px;
+    display: flex;
+    align-items: center;
+  }
+  .panel-caption i { font-size: 16px; margin-right: 6px; }
+  table.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  table.data-table thead tr {
+    background: var(--bg-secondary);
+  }
+  table.data-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-weight: 500;
+  }
+  table.data-table th:last-child, table.data-table td:last-child {
+    text-align: right;
+  }
+  table.data-table td {
+    padding: 8px 12px;
+  }
+  table.data-table tbody tr {
+    border-top: 0.5px solid var(--border-tertiary);
+  }
+  .table-wrap {
+    overflow-x: auto;
+    border: 0.5px solid var(--border-tertiary);
+    border-radius: var(--radius-lg);
+  }
+  .note {
+    font-size: 13px;
+    margin: 10px 0 0;
+  }
+  .note.bad { color: var(--text-danger); }
+  .note.good { color: var(--text-info); display: flex; align-items: center; }
+  .note.good i { font-size: 14px; margin-right: 4px; }
+  pre.code-block {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.6;
+    overflow-x: auto;
+    margin: 0 0 1rem;
+    white-space: pre;
+  }
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+    height: 280px;
+  }
+  .bad-value { color: var(--text-danger); }
+  .footer-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 0.5px solid var(--border-tertiary);
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .footer-actions a.btn {
+    background: var(--bg-primary);
+    border: 0.5px solid var(--border-tertiary);
+    border-radius: var(--radius-md);
+    padding: 7px 16px;
+    font-size: 13px;
+    color: var(--text-primary);
+    text-decoration: none;
+    display: inline-block;
+  }
+  .footer-actions a.btn:hover {
+    border-color: var(--border-secondary);
+  }
+  .legend-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin: 0 0 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .legend-row span.dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 4px;
+    vertical-align: -1px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="masthead">
+    <h1>Data analytics & visualization with Python</h1>
+    <p>An interactive walkthrough: raw data → clean it with pandas → visualize it with matplotlib-style charts.</p>
+  </div>
+
+  <div class="card">
+    <h2 class="sr-only">Interactive walkthrough of a Python data analytics pipeline: load raw sales data, clean it with pandas, then visualize it with different chart types</h2>
+
+    <div class="step-nav">
+      <button id="step1-btn" class="step-btn active-step" data-step="1">1. Raw data</button>
+      <button id="step2-btn" class="step-btn" data-step="2">2. Clean with pandas</button>
+      <button id="step3-btn" class="step-btn" data-step="3">3. Visualize</button>
+    </div>
+
+    <div id="step1" class="step-panel visible">
+      <p class="panel-caption"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i>sales_raw.csv — messy data straight from the source</p>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>date</th><th>region</th><th>product</th><th>revenue</th></tr>
+          </thead>
+          <tbody id="raw-tbody"></tbody>
+        </table>
+      </div>
+      <p class="note bad">Issues: missing values, inconsistent casing, a string in a numeric column.</p>
+    </div>
+
+    <div id="step2" class="step-panel">
+      <pre class="code-block"><code>df['region'] = df['region'].str.strip().str.title()
+df['revenue'] = pd.to_numeric(df['revenue'], errors='coerce')
+df = df.dropna(subset=['revenue'])
+df['date'] = pd.to_datetime(df['date'])</code></pre>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>date</th><th>region</th><th>product</th><th>revenue</th></tr>
+          </thead>
+          <tbody id="clean-tbody"></tbody>
+        </table>
+      </div>
+      <p class="note good"><i class="ti ti-check" aria-hidden="true"></i>4 rows kept after dropping invalid revenue, regions normalized.</p>
+    </div>
+
+    <div id="step3" class="step-panel">
+      <div class="step-nav" style="margin-bottom: 1rem;">
+        <button id="chart-bar" class="chart-toggle active-chart" data-chart="bar">Bar</button>
+<script>
+(function() {
+  var rawRows = [
+    ['2024-01-03', ' north', 'Widget A', '320'],
+    ['2024-01-04', 'SOUTH', 'Widget B', 'n/a'],
+    ['2024-01-05', 'East', 'Widget A', '410'],
+    ['2024-01-06', 'west ', 'Widget C', '760'],
+    ['2024-01-07', 'North', 'Widget B', ''],
+    ['2024-01-08', 'east', 'Widget C', '290'],
+    ['2024-01-09', 'South', 'Widget A', '980'],
+    ['2024-01-10', 'North', 'Widget C', '1130']
+  ];
+  var cleanRows = [
+    ['2024-01-03', 'North', 'Widget A', 320],
+    ['2024-01-05', 'East', 'Widget A', 410],
+    ['2024-01-06', 'West', 'Widget C', 760],
+    ['2024-01-08', 'East', 'Widget C', 290],
+    ['2024-01-09', 'South', 'Widget A', 980],
+    ['2024-01-10', 'North', 'Widget C', 1130]
+      .replace(/</g, '&lt;')
+
+      var bad = highlightBad && (r[3] === 'n/a' || r[3] === '');
+      var revClass = bad ? 'bad-value' : '';
+        '<td>' + escapeHtml(r[2]) + '</td>' +
+        '<td class="' + revClass + '">' + escapeHtml(r[3]) + '</td>' +
+    }).join('');
+  fillTable('raw-tbody', rawRows, true);
+  fillTable('clean-tbody', cleanRows, false);
+
+  var steps = ['1', '2', '3'];
+  steps.forEach(function(s) {
+    document.getElementById('step' + s + '-btn').addEventListener('click', function() {
+      steps.forEach(function(t) {
+        var panel = document.getElementById('step' + t);
+        var btn = document.getElementById('step' + t + '-btn');
+        if (t === s) {
+          panel.classList.add('visible');
+          btn.classList.add('active-step');
+        } else {
+          panel.classList.remove('visible');
+          btn.classList.remove('active-step');
+        }
+      });
+    });
+  });
+
+  var regions = ['North', 'South', 'East', 'West'];
+  var totals = [1450, 980, 1620, 760];
+  var colors = ['#7f77dd', '#1d9e75', '#d85a30', '#d4537e'];
+  var codeSnippets = {
+    bar: "df.groupby('region')['revenue'].sum().plot(kind='bar')\nplt.title('Revenue by region')\nplt.show()",
+    line: "df.groupby('date')['revenue'].sum().plot(kind='line')\nplt.title('Revenue over time')\nplt.show()",
+    pie: "df.groupby('region')['revenue'].sum().plot(kind='pie', autopct='%1.0f%%')\nplt.title('Revenue share by region')\nplt.show()"
+  };
+
+  var ctx = document.getElementById('mainChart');
+  var legendRow = document.getElementById('legend-row');
+  var chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: regions,
+      datasets: [{ label: 'Revenue', data: totals, backgroundColor: colors }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+
+  function buildLegend() {
+    var total = totals.reduce(function(a, b) { return a + b; }, 0);
+    legendRow.innerHTML = regions.map(function(r, i) {
+      var pct = Math.round((totals[i] / total) * 100);
+      return '<span><span class="dot" style="background:' + colors[i] + ';"></span>' + r + ' ' + pct + '%</span>';
+    }).join('');
+  }
+
+  function rebuildChart(type) {
+    chart.destroy();
+    var config;
+    if (type === 'line') {
+      config = {
+        type: 'line',
+        data: { labels: regions, datasets: [{ label: 'Revenue', data: totals, borderColor: '#378add', backgroundColor: 'rgba(55,138,221,0.15)', fill: true, tension: 0.3 }] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
+        }
+      };
+      legendRow.style.display = 'none';
+    } else if (type === 'pie') {
+      config = {
+        type: 'pie',
+        data: { labels: regions, datasets: [{ label: 'Revenue', data: totals, backgroundColor: colors }] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } }
+        }
+      };
+      buildLegend();
+      legendRow.style.display = 'flex';
+    } else {
+      config = {
+        type: 'bar',
+        data: { labels: regions, datasets: [{ label: 'Revenue', data: totals, backgroundColor: colors }] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
+        }
+      };
+      legendRow.style.display = 'none';
+    }
+    chart = new Chart(ctx, config);
+  }
+
+  ['bar', 'line', 'pie'].forEach(function(t) {
+    document.getElementById('chart-' + t).addEventListener('click', function() {
+      ['bar', 'line', 'pie'].forEach(function(o) {
+        document.getElementById('chart-' + o).classList.toggle('active-chart', o === t);
+      });
+      document.getElementById('chart-code').querySelector('code').textContent = codeSnippets[t];
+      rebuildChart(t);
+    });
+  });
+})();
+</script>
+</body>
+</html>
+  }
+        '</tr>';
+        '<td>' + escapeHtml(r[0]) + '</td>' +
+        '<td>' + escapeHtml(r[1]) + '</td>' +
+      return '<tr>' +
+    tbody.innerHTML = rows.map(function(r) {
+  function fillTable(id, rows, highlightBad) {
+    var tbody = document.getElementById(id);
+  }
+      .replace(/>/g, '&gt;');
+      .replace(/&/g, '&amp;')
+    return String(s)
+  function escapeHtml(s) {
+  ];
+
+
